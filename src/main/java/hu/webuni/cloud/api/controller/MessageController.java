@@ -1,6 +1,8 @@
 package hu.webuni.cloud.api.controller;
 
 import hu.webuni.cloud.service.MessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,8 @@ import java.util.List;
 @RequestMapping("/message")
 public class MessageController {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageController.class);
+
     private final MessageService service;
 
     public MessageController(MessageService service) {
@@ -20,12 +24,17 @@ public class MessageController {
 
     @GetMapping(value = "/recent", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<String> getRecentMessages() {
-        return service.getRecentMessages();
+        log.info("Request arrived on /recent endpoint");
+        List<String> recentMessages = service.getRecentMessages();
+        log.info("Sending back response on /recent endpoint with data: number of recentMessages {}", recentMessages.size());
+        return recentMessages;
     }
 
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Object> newMessageArrived(@RequestBody String message) {
+        log.info("Request arrived on /message endpoint with message: {}", message);
         service.createNewMessage(message);
+        log.info("New message created on /message endpoint");
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
